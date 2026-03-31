@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOSPI200 선물 대시보드</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #05080f;
+  --card:  #080d1a;
+  --card2: #0a1120;
+  --line:  #101c30;
+  --line2: #172840;
+  --cyan:  #00ccff;
+  --blue:  #0050ff;
+  --green: #00dd99;
+  --red:   #ff2255;
+  --purp:  #8855ff;
+  --gold:  #ffbb30;
+  --text:  #c8dcf8;
+  --dim:   #375068;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans KR',sans-serif;min-height:100vh}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(0,204,255,.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,204,255,.022) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+.pg{position:relative;z-index:1;max-width:1320px;margin:0 auto;padding:16px 14px 40px}
+
+/* ── HEADER ── */
+.hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid var(--line2)}
+.brand{display:flex;align-items:center;gap:10px}
+.bi{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:16px}
+.bn{font-size:15px;font-weight:700}
+.bs{font-size:9px;color:var(--dim);font-family:'IBM Plex Mono',monospace;letter-spacing:.7px}
+.hr{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#clk{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--cyan);background:rgba(0,204,255,.06);border:1px solid rgba(0,204,255,.18);border-radius:5px;padding:4px 10px}
+.pill{font-size:10px;font-weight:700;letter-spacing:.4px;padding:3px 9px;border-radius:20px}
+.pill.open  {background:rgba(0,221,153,.12);color:var(--green);border:1px solid rgba(0,221,153,.28)}
+.pill.night {background:rgba(136,85,255,.12);color:#aa88ff;   border:1px solid rgba(136,85,255,.28)}
+.pill.closed{background:rgba(255,34,85,.08); color:var(--red); border:1px solid rgba(255,34,85,.2)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:bk 1.8s ease infinite;display:inline-block}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.2}}
+#updated-lbl{font-size:10px;color:var(--dim);font-family:'IBM Plex Mono',monospace}
+
+/* ── TICKER ── */
+.tape{background:var(--card);border:1px solid var(--line2);border-radius:8px;display:flex;align-items:center;overflow:hidden;height:32px;margin-bottom:14px}
+.tape-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.7px;color:var(--cyan);background:rgba(0,204,255,.06);border-right:1px solid var(--line2);padding:0 11px;height:100%;display:flex;align-items:center;white-space:nowrap}
+.tape-sc{overflow:hidden;flex:1;height:100%;display:flex;align-items:center}
+.tape-tr{display:flex;gap:28px;white-space:nowrap;animation:sc 50s linear infinite}
+.tape-tr:hover{animation-play-state:paused}
+@keyframes sc{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ti{display:flex;align-items:center;gap:5px}
+.tn{font-size:10px;color:var(--dim)}
+.tv{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600}
+.tc{font-family:'IBM Plex Mono',monospace;font-size:10px}
+.up{color:var(--red)}.dn{color:var(--green)}.neu{color:var(--dim)}
+
+/* ── TWO COL CARDS ── */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:14px}
+@media(max-width:800px){.two{grid-template-columns:1fr}}
+.fc{background:var(--card);border:1px solid var(--line2);border-radius:12px;overflow:hidden}
+.fb{height:2px}
+.fb-d{background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.fb-n{background:linear-gradient(90deg,var(--purp),#cc88ff)}
+.fh{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 14px 8px}
+.fl{font-size:9px;color:var(--dim);letter-spacing:.7px;text-transform:uppercase;margin-bottom:2px}
+.ft{font-size:13px;font-weight:700}
+.stag{font-size:9px;font-weight:700;letter-spacing:.3px;padding:3px 7px;border-radius:4px}
+.sd{background:rgba(0,204,255,.09);color:var(--cyan)}
+.sn{background:rgba(136,85,255,.11);color:#bb99ff}
+.fp{padding:2px 14px 11px;border-bottom:1px solid var(--line)}
+.bp{font-family:'IBM Plex Mono',monospace;font-size:34px;font-weight:600;letter-spacing:-1px;line-height:1;margin-bottom:5px}
+.pr{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.cp{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;padding:2px 7px;border-radius:4px}
+.cp-u{background:rgba(255,34,85,.11);color:var(--red)}
+.cp-d{background:rgba(0,221,153,.1);color:var(--green)}
+.cp-n{background:rgba(255,255,255,.05);color:var(--dim)}
+.ao{font-size:10px;color:var(--dim);font-family:'IBM Plex Mono',monospace}
+.fm{display:grid;grid-template-columns:repeat(3,1fr)}
+.mc{padding:9px 12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.mc:nth-child(3n){border-right:none}
+.mc:nth-last-child(-n+3){border-bottom:none}
+.ml{font-size:9px;color:var(--dim);margin-bottom:2px}
+.mv{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600}
+
+/* ── CHART BOX ── */
+.chart-box{background:var(--card);border:1px solid var(--line2);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.ctabs{display:flex;align-items:center;border-bottom:1px solid var(--line)}
+.ctab{font-size:11px;font-weight:600;padding:10px 15px;cursor:pointer;color:var(--dim);border:none;border-bottom:2px solid transparent;background:none;font-family:'IBM Plex Sans KR',sans-serif;transition:.15s}
+.ctab.on{color:var(--cyan);border-bottom-color:var(--cyan)}
+.ctab:hover:not(.on){color:var(--text)}
+.chart-wrap{padding:14px 14px 10px;position:relative}
+canvas#mc{width:100%;height:260px;display:block}
+.chart-legend{display:flex;gap:14px;padding:4px 14px 12px;flex-wrap:wrap}
+.cl-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--dim)}
+.cl-dot{width:7px;height:7px;border-radius:50%}
+
+/* ── BOTTOM ── */
+.bot{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+@media(max-width:800px){.bot{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line2);border-radius:12px;overflow:hidden}
+.ph{display:flex;align-items:center;gap:7px;padding:11px 14px;border-bottom:1px solid var(--line);font-size:12px;font-weight:700}
+.ph::before{content:'';width:3px;height:11px;border-radius:2px;background:linear-gradient(var(--blue),var(--cyan))}
+
+/* news */
+.nl{padding:2px 0}
+.ni{display:flex;align-items:flex-start;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line);transition:.12s}
+.ni:last-child{border-bottom:none}
+.ni:hover{background:rgba(255,255,255,.018)}
+.ntx{font-size:12px;line-height:1.5;flex:1}
+.ntx a{color:var(--text);text-decoration:none}
+.ntx a:hover{color:var(--cyan);text-decoration:underline}
+.nag{font-size:10px;color:var(--dim);font-family:'IBM Plex Mono',monospace;white-space:nowrap;padding-top:2px}
+.nsrc{font-size:10px;color:var(--dim);padding:8px 13px;border-top:1px solid var(--line);text-align:center}
+
+/* index table */
+.it{width:100%;border-collapse:collapse}
+.it tr{border-bottom:1px solid var(--line)}
+.it tr:last-child{border-bottom:none}
+.it td{padding:9px 13px;font-size:12px}
+.it .v{font-family:'IBM Plex Mono',monospace;font-weight:600;text-align:right}
+.it .c{text-align:right}
+.ic{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;display:inline-block}
+.ic.up{background:rgba(255,34,85,.11);color:var(--red)}
+.ic.dn{background:rgba(0,221,153,.1);color:var(--green)}
+
+/* spec */
+.st{width:100%;border-collapse:collapse}
+.st tr{border-bottom:1px solid var(--line)}
+.st tr:last-child{border-bottom:none}
+.st td{padding:9px 13px;font-size:11px}
+.st td:first-child{color:var(--dim);width:46%}
+.st td:last-child{font-family:'IBM Plex Mono',monospace;font-weight:600}
+
+/* skeleton */
+.skel{background:linear-gradient(90deg,var(--line) 25%,var(--line2) 50%,var(--line) 75%);background-size:200% 100%;animation:sk 1.4s ease infinite;border-radius:4px;height:14px;margin:4px 0}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+footer{text-align:center;font-size:10px;color:var(--dim);margin-top:14px;padding-top:12px;border-top:1px solid var(--line);line-height:1.8}
+</style>
+</head>
+<body>
+<div class="pg">
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="brand">
+    <div class="bi">📊</div>
+    <div>
+      <div class="bn">KOSPI200 선물</div>
+      <div class="bs">KRX FUTURES MONITOR · YAHOO FINANCE</div>
+    </div>
+  </div>
+  <div class="hr">
+    <span id="updated-lbl">데이터 로딩 중...</span>
+    <div id="clk">KST --:--:--</div>
+    <div id="mkt" class="pill closed">장 마감</div>
+    <span class="dot"></span>
+  </div>
+</header>
+
+<!-- TICKER -->
+<div class="tape">
+  <div class="tape-lbl">▶ MARKET</div>
+  <div class="tape-sc"><div class="tape-tr" id="tape"><span class="ti"><span class="tn">로딩 중...</span></span></div></div>
+</div>
+
+<!-- FUTURES CARDS -->
+<div class="two">
+  <!-- 주간 -->
+  <div class="fc">
+    <div class="fb fb-d"></div>
+    <div class="fh">
+      <div><div class="fl">KOSPI200 지수</div><div class="ft">주간 <span style="font-size:10px;color:var(--dim);font-weight:400">^KS200</span></div></div>
+      <span class="stag sd">DAY 09:00–15:45</span>
+    </div>
+    <div class="fp">
+      <div class="bp" id="d-px" style="color:var(--text)">---.--</div>
+      <div class="pr">
+        <span class="cp cp-n" id="d-ch">± -.-</span>
+        <span class="cp cp-n" id="d-pt">(±-.-%)</span>
+        <span class="ao" id="d-ao">-</span>
+      </div>
+    </div>
+    <div class="fm">
+      <div class="mc"><div class="ml">시가</div><div class="mv" id="d-o">-</div></div>
+      <div class="mc"><div class="ml">고가</div><div class="mv up" id="d-h">-</div></div>
+      <div class="mc"><div class="ml">저가</div><div class="mv dn" id="d-l">-</div></div>
+      <div class="mc"><div class="ml">전일종가</div><div class="mv" id="d-p">-</div></div>
+      <div class="mc"><div class="ml">등락폭</div><div class="mv" id="d-chgv">-</div></div>
+      <div class="mc"><div class="ml">거래량</div><div class="mv" id="d-v">-</div></div>
+    </div>
+  </div>
+  <!-- 야간 -->
+  <div class="fc">
+    <div class="fb fb-n"></div>
+    <div class="fh">
+      <div><div class="fl">KOSPI200 야간참고</div><div class="ft">야간 <span style="font-size:10px;color:var(--dim);font-weight:400">^KS200 기준</span></div></div>
+      <span class="stag sn">NIGHT 18:00–05:00</span>
+    </div>
+    <div class="fp">
+      <div class="bp" id="n-px" style="color:var(--text)">---.--</div>
+      <div class="pr">
+        <span class="cp cp-n" id="n-ch">± -.-</span>
+        <span class="cp cp-n" id="n-pt">(±-.-%)</span>
+        <span class="ao" id="n-ao">-</span>
+      </div>
+    </div>
+    <div class="fm">
+      <div class="mc"><div class="ml">시가</div><div class="mv" id="n-o">-</div></div>
+      <div class="mc"><div class="ml">고가</div><div class="mv up" id="n-h">-</div></div>
+      <div class="mc"><div class="ml">저가</div><div class="mv dn" id="n-l">-</div></div>
+      <div class="mc"><div class="ml">기준가</div><div class="mv" id="n-p">-</div></div>
+      <div class="mc"><div class="ml">등락폭</div><div class="mv" id="n-chgv">-</div></div>
+      <div class="mc"><div class="ml">거래단위</div><div class="mv">× 250,000원</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHART -->
+<div class="chart-box">
+  <div class="ctabs">
+    <button class="ctab on" id="tab-d" onclick="setTab('d')">📈 주간 (일중)</button>
+    <button class="ctab"    id="tab-k" onclick="setTab('k')">📊 KOSPI200 (일중)</button>
+    <button class="ctab"    id="tab-w" onclick="setTab('w')">📅 KOSPI200 (주봉)</button>
+  </div>
+  <div class="chart-wrap">
+    <canvas id="mc" width="1300" height="260"></canvas>
+  </div>
+  <div class="chart-legend" id="cl"></div>
+</div>
+
+<!-- BOTTOM -->
+<div class="bot">
+  <!-- 뉴스 -->
+  <div class="panel">
+    <div class="ph"><span class="dot" style="width:5px;height:5px"></span> 주식 뉴스 (Yahoo Finance)</div>
+    <div id="nl"><div class="skel" style="margin:12px"></div><div class="skel" style="margin:12px;width:70%"></div></div>
+    <div class="nsrc" id="nsrc"></div>
+  </div>
+  <!-- 오른쪽 -->
+  <div style="display:flex;flex-direction:column;gap:13px">
+    <div class="panel">
+      <div class="ph">주요 지수</div>
+      <table class="it" id="idt"><tr><td colspan="3" style="padding:12px;color:var(--dim)">로딩 중...</td></tr></table>
+    </div>
+    <div class="panel">
+      <div class="ph">선물 계약 사양 (KRX)</div>
+      <table class="st">
+        <tr><td>주간 거래시간</td><td style="color:var(--cyan)">09:00–15:45 KST</td></tr>
+        <tr><td>야간 거래시간</td><td style="color:#bb99ff">18:00–05:00 KST</td></tr>
+        <tr><td>거래단위</td><td>지수 × 250,000원</td></tr>
+        <tr><td>최소호가</td><td>0.05 pt (12,500원)</td></tr>
+        <tr><td>결제월</td><td>3 · 6 · 9 · 12월</td></tr>
+        <tr><td>최종거래일</td><td>만기월 2번째 목요일</td></tr>
+        <tr><td>결제방법</td><td>현금결제</td></tr>
+        <tr><td>위탁증거금</td><td style="color:var(--red)">약 9% (KRX 기준)</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<footer>
+  데이터 출처: Yahoo Finance (yfinance) · GitHub Actions 5분 갱신<br>
+  본 대시보드는 참고용이며 실제 투자 결정에는 증권사 HTS·MTS를 이용하세요
+</footer>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// 1. CLOCK & MARKET STATUS
+// ═══════════════════════════════════════
+function tick() {
+  const k = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'}));
+  const h=k.getHours(),m=k.getMinutes(),s=k.getSeconds();
+  document.getElementById('clk').textContent =
+    'KST '+pad(h)+':'+pad(m)+':'+pad(s);
+  const tot=h*60+m, el=document.getElementById('mkt');
+  if(tot>=540&&tot<945)       {el.textContent='주간장 OPEN';el.className='pill open'}
+  else if(tot>=1080||tot<300) {el.textContent='야간장 OPEN';el.className='pill night'}
+  else                        {el.textContent='장 마감';    el.className='pill closed'}
+}
+const pad=n=>String(n).padStart(2,'0');
+setInterval(tick,1000); tick();
+
+// ═══════════════════════════════════════
+// 2. LOAD data.json
+// ═══════════════════════════════════════
+let _data = null;
+let _tab  = 'd';
+let _weekly = null; // 주봉 데이터 캐시
+
+async function loadData() {
+  try {
+    // 캐시 방지용 타임스탬프
+    const r = await fetch('data.json?t=' + Date.now());
+    if (!r.ok) throw new Error('data.json not found');
+    _data = await r.json();
+    render();
+  } catch(e) {
+    document.getElementById('updated-lbl').textContent = '⚠ data.json 없음 — Actions 실행 확인';
+    console.error(e);
+  }
+}
+
+// ═══════════════════════════════════════
+// 3. RENDER
+// ═══════════════════════════════════════
+const f2 = n => n != null ? (+n).toFixed(2) : '-';
+const fN = n => n != null ? Math.round(n).toLocaleString('ko-KR') : '-';
+const sign = n => n > 0 ? '+' : '';
+const cpCl = n => n > 0 ? 'cp-u' : n < 0 ? 'cp-d' : 'cp-n';
+const icCl = n => n > 0 ? 'up' : 'dn';
+
+function setCard(pfx, d, label) {
+  if (!d || !d.ok) return;
+  const col = d.chg >= 0 ? 'var(--red)' : 'var(--green)';
+  document.getElementById(pfx+'-px').textContent = f2(d.price);
+  document.getElementById(pfx+'-px').style.color = col;
+  const ch = document.getElementById(pfx+'-ch');
+  ch.textContent = sign(d.chg)+f2(d.chg); ch.className='cp '+cpCl(d.chg);
+  const pt = document.getElementById(pfx+'-pt');
+  pt.textContent='('+sign(d.pct)+f2(d.pct)+'%)'; pt.className='cp '+cpCl(d.pct);
+  document.getElementById(pfx+'-ao').textContent = _data.updated || '-';
+  document.getElementById(pfx+'-o').textContent = f2(d.open);
+  document.getElementById(pfx+'-h').textContent = f2(d.high);
+  document.getElementById(pfx+'-l').textContent = f2(d.low);
+  document.getElementById(pfx+'-p').textContent = f2(d.prev);
+  document.getElementById(pfx+'-chgv').textContent = (d.chg >= 0 ? '+' : '') + f2(d.chg);
+  document.getElementById(pfx+'-chgv').style.color = col;
+  if (document.getElementById(pfx+'-v'))
+    document.getElementById(pfx+'-v').textContent = fN(d.vol);
+}
+
+function renderTicker(indices) {
+  const all = [...indices, ...indices]; // seamless loop
+  document.getElementById('tape').innerHTML = all.map(it => {
+    if (!it.ok) return '';
+    const c = it.chg > 0 ? 'up' : 'dn';
+    return `<span class="ti">
+      <span class="tn">${it.name}</span>
+      <span class="tv ${c}">${(+it.price).toLocaleString('ko-KR',{maximumFractionDigits:2})}</span>
+      <span class="tc ${c}">${sign(it.chg)}${f2(it.pct)}%</span>
+    </span>`;
+  }).join('');
+}
+
+function renderIdx(indices) {
+  document.getElementById('idt').innerHTML = indices.map(it => {
+    if (!it.ok) return `<tr><td>${it.name}</td><td class="v">-</td><td class="c">-</td></tr>`;
+    return `<tr>
+      <td>${it.name}</td>
+      <td class="v">${(+it.price).toLocaleString('ko-KR',{maximumFractionDigits:2})}</td>
+      <td class="c"><span class="ic ${icCl(it.chg)}">${sign(it.chg)}${f2(it.pct)}%</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderNews(news) {
+  if (!news || news.length === 0) {
+    document.getElementById('nl').innerHTML =
+      '<div style="padding:16px;color:var(--dim);font-size:12px;text-align:center">뉴스를 불러올 수 없습니다</div>';
+    return;
+  }
+  document.getElementById('nl').innerHTML = '<div class="nl">' +
+    news.map(n => `<div class="ni">
+      <div class="ntx">
+        ${n.link && n.link !== '#'
+          ? `<a href="${n.link}" target="_blank" rel="noopener">${n.title}</a>`
+          : n.title}
+      </div>
+      <div class="nag">${n.ago || ''}</div>
+    </div>`).join('') + '</div>';
+  document.getElementById('nsrc').textContent = '출처: Yahoo Finance';
+}
+
+function render() {
+  if (!_data) return;
+
+  document.getElementById('updated-lbl').textContent = '갱신: ' + (_data.updated || '-');
+
+  setCard('d', _data.day, '주간');
+  setCard('n', _data.night, '야간');
+
+  if (_data.indices) {
+    renderTicker(_data.indices);
+    renderIdx(_data.indices);
+  }
+  renderNews(_data.news);
+  setTimeout(drawChart, 30);
+}
+
+// ═══════════════════════════════════════
+// 4. CANVAS CHART
+// ═══════════════════════════════════════
+function setTab(t) {
+  _tab = t;
+  ['d','k','w'].forEach(x => document.getElementById('tab-'+x).classList.remove('on'));
+  document.getElementById('tab-'+t).classList.add('on');
+  drawChart();
+}
+
+function drawChart() {
+  const canvas = document.getElementById('mc');
+  const W = canvas.clientWidth || 1300, H = 260;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+
+  let pts=[], color='#00ccff', label='', priceLabel='';
+
+  if (_tab === 'd' && _data?.day?.chart?.length > 1) {
+    pts = _data.day.chart.map(p => p.c);
+    color = _data.day.chg >= 0 ? '#ff2255' : '#00dd99';
+    label = 'KOSPI200 주간 (1분봉)';
+    priceLabel = f2(_data.day.price);
+  } else if (_tab === 'k' && _data?.kospi?.chart?.length > 1) {
+    pts = _data.kospi.chart.map(p => p.c);
+    color = _data.kospi.chg >= 0 ? '#ff2255' : '#00dd99';
+    label = 'KOSPI 지수 (1분봉)';
+    priceLabel = f2(_data.kospi.price);
+  } else if (_tab === 'w') {
+    // 주봉: data.json에 없으면 별도 로드
+    drawWeeklyChart(ctx, W, H);
+    return;
+  }
+
+  if (pts.length < 2) {
+    // 데이터 없음 메시지
+    ctx.fillStyle = 'var(--dim)';
+    ctx.font = '13px IBM Plex Sans KR, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('장중 데이터가 없습니다 (장 시작 후 갱신됩니다)', W/2, H/2);
+    ctx.textAlign = 'left';
+    document.getElementById('cl').innerHTML = '';
+    return;
+  }
+
+  drawLineChart(ctx, W, H, pts, color, label, priceLabel,
+    _tab === 'd' ? (_data.day.chart||[]).map(p=>p.t) : (_data.kospi.chart||[]).map(p=>p.t));
+}
+
+function drawLineChart(ctx, W, H, pts, color, label, priceLabel, timeLabels) {
+  const PL=56, PR=14, PT=16, PB=28;
+  const cW=W-PL-PR, cH=H-PT-PB;
+  const lo=Math.min(...pts), hi=Math.max(...pts);
+  const rng=hi-lo||1, padV=rng*.12;
+  const toX=i=>PL+(i/(pts.length-1))*cW;
+  const toY=v=>PT+cH-((v-lo+padV)/(rng+padV*2))*cH;
+
+  // 가로 격자 + Y축 레이블
+  const rows=6;
+  for(let i=0;i<=rows;i++){
+    const y=PT+i*(cH/rows);
+    const val=hi+padV-(i/rows)*(rng+padV*2);
+    ctx.beginPath(); ctx.setLineDash([3,6]);
+    ctx.strokeStyle='rgba(23,40,64,.9)'; ctx.lineWidth=1;
+    ctx.moveTo(PL,y); ctx.lineTo(W-PR,y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#375068'; ctx.font='10px IBM Plex Mono,monospace';
+    ctx.textAlign='right';
+    ctx.fillText(val.toFixed(1), PL-4, y+3.5);
+  }
+
+  // 세로 격자 + X축 시간
+  const cols=Math.min(8, pts.length-1);
+  for(let i=0;i<=cols;i++){
+    const x=PL+(i/cols)*cW;
+    ctx.beginPath(); ctx.setLineDash([2,7]);
+    ctx.strokeStyle='rgba(23,40,64,.7)'; ctx.lineWidth=1;
+    ctx.moveTo(x,PT); ctx.lineTo(x,PT+cH); ctx.stroke();
+    ctx.setLineDash([]);
+    if(i<cols && timeLabels && timeLabels.length>0){
+      const idx=Math.floor(i/cols*(timeLabels.length-1));
+      ctx.fillStyle='#375068'; ctx.font='10px IBM Plex Mono,monospace';
+      ctx.textAlign='center';
+      ctx.fillText(timeLabels[idx]||'', x+(cW/(cols*2)), H-4);
+    }
+  }
+  ctx.textAlign='left';
+
+  // 영역 채우기
+  const grad=ctx.createLinearGradient(0,PT,0,PT+cH);
+  grad.addColorStop(0, color+'28'); grad.addColorStop(1, color+'00');
+  ctx.beginPath();
+  pts.forEach((v,i)=>i===0?ctx.moveTo(toX(i),toY(v)):ctx.lineTo(toX(i),toY(v)));
+  ctx.lineTo(toX(pts.length-1),PT+cH); ctx.lineTo(PL,PT+cH); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  // 라인
+  ctx.beginPath();
+  pts.forEach((v,i)=>i===0?ctx.moveTo(toX(i),toY(v)):ctx.lineTo(toX(i),toY(v)));
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
+
+  // 끝점 dot
+  const lx=toX(pts.length-1), ly=toY(pts[pts.length-1]);
+  ctx.beginPath(); ctx.arc(lx,ly,4,0,Math.PI*2);
+  ctx.fillStyle=color; ctx.fill();
+  ctx.beginPath(); ctx.arc(lx,ly,7,0,Math.PI*2);
+  ctx.strokeStyle=color+'55'; ctx.lineWidth=2; ctx.stroke();
+
+  // 현재가 레이블
+  ctx.fillStyle=color; ctx.font='bold 11px IBM Plex Mono,monospace';
+  ctx.textAlign='right';
+  ctx.fillText(priceLabel, W-PR, ly-7);
+  ctx.textAlign='left';
+
+  document.getElementById('cl').innerHTML=
+    `<div class="cl-item"><div class="cl-dot" style="background:${color}"></div>${label}&nbsp;
+     <strong style="font-family:'IBM Plex Mono',monospace;color:${color}">${priceLabel}</strong></div>`;
+}
+
+function drawWeeklyChart(ctx, W, H) {
+  // 주봉: data.json에는 없으므로 별도 fetch (GitHub Actions에서 weekly.json 생성 시 사용)
+  // 없으면 안내 메시지
+  ctx.fillStyle='#375068'; ctx.font='13px IBM Plex Sans KR,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('주봉 데이터는 weekly.json 파일이 필요합니다 (fetch_data.py 확장 후 사용)', W/2, H/2);
+  ctx.textAlign='left';
+  document.getElementById('cl').innerHTML='<div class="cl-item">주봉 데이터 준비 중</div>';
+}
+
+// ═══════════════════════════════════════
+// 5. INIT
+// ═══════════════════════════════════════
+loadData();
+// 60초마다 data.json 재로드 (Actions가 5분마다 갱신하므로 충분)
+setInterval(loadData, 60 * 1000);
+window.addEventListener('resize', () => { if(_data) drawChart(); });
+</script>
+</body>
+</html>

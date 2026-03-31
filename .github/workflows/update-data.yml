@@ -1,0 +1,42 @@
+name: Update Market Data
+
+on:
+  schedule:
+    # 5분마다 실행 (UTC 기준, 한국장 시간대 집중)
+    # 주간장: KST 09:00~15:45 = UTC 00:00~06:45
+    # 야간장: KST 18:00~05:00 = UTC 09:00~20:00
+    - cron: '*/5 0-7 * * 1-5'    # 주간장 시간대 (평일)
+    - cron: '*/5 9-20 * * 0-5'   # 야간장 시간대
+    - cron: '0 * * * *'           # 나머지 시간 1시간마다
+  workflow_dispatch:               # 수동 실행 버튼
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write              # data.json 커밋 권한
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install yfinance pytz requests
+
+      - name: Fetch market data
+        run: python fetch_data.py
+
+      - name: Commit and push data.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          # 변경이 있을 때만 커밋
+          git diff --cached --quiet || git commit -m "📊 market data update $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
